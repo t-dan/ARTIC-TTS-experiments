@@ -1,0 +1,84 @@
+This repository contains data used for the experiments described in paper:
+
+   Daniel Tihelka, Martin Grůber, Jindřich Matoušek and Markéta Jůzová: Examining the Ability of One-Class Classifier to Ensure the Spectral Smoothness of Concatenated Units
+
+
+------------
+The description of the data files:
+
+DISTS.asf
+- target distances for all the vowels computed for the whole corpus
+- all of them are computed from the frames neighboring in the speech corpus
+
+DISTS-OK.asf
+- target distances computed between frames taken from the left and right sides of the concatenated word halves
+- thus, the frames were not neighbours in the corpus!
+- distances in this set correspond to words evaluated by listeners as "without audible artefact"
+
+DISTS-artefact.asf
+- target distances computed between frames taken from the left and right sides of the concatenated word halves
+- thus, the frames were not neighbours in the corpus!
+- distances in this set correspond to words evaluated by listeners as "having audible artefact"
+
+
+---
+ASF format description:
+
+The ASF files (*.asf, from ARTIC segmentation file) are similar to CSV files, except the columns are space aligned (leading and trailing spaces can be
+removed from data values), | is used as items separator, and header with column names is stored at line surrounded by [ ... ] brackets. Lines starting
+with # are comments and can be ignored.
+
+The content of the ASF file looking as:
+
+    [ key_1 | key_2 | key_3 ]
+
+    "section_key_1"
+    | value | value | value |
+    | value | value | value |
+
+    "section_key_2"
+    | value | value | value |
+
+can be converted to python dictionary-of-arrays-of-dictionaries, looking as:
+    {
+        section_key_1 : [
+            { key_1 : value,
+              key_2 : value,
+              key_3 : value
+            },
+            { key_1 : value,
+              key_2 : value,
+              key_3 : value
+            }
+        ],
+        section_key_2 : [
+            { key_1 : value,
+              key_2 : value,
+              key_3 : value
+            }
+        ]
+    }
+
+
+In the ASF files, "FFT2 kullbackSym, LPC itakura, LPCenv kullbackSym, MFCC euclidean, MFCC mahalanobis" keys represent values of the individual distances,
+"for train" key marks distances used for training of the classifiers and "for test" key marks distances used for the evaluation of the classifiers. The
+other keys are auxilliary and were not used during the training.
+
+
+
+------------
+The training tools:
+
+dummy_scaler.py:
+std_scaler.py:
+- simple scripts which creates data scaler instances; those are:
+  * StandardScaler() used together with OCCSVM and ... classifiers
+  * dummy scaler, not scaling the data at all, used together with ....
+
+shuffle_split.py:
+- simple script which creates ShuffleSplit() instance used to shuffle training/testing dataset parts during cross-validation
+- the imput parameters is the number of samples used for training (i.e. the number of vectors in DISTS.*.train.json)
+
+one_class_svm.py:
+- simple script which creates OneClassSVM() instance and the set of parameters through which the grid search is carried out
+
